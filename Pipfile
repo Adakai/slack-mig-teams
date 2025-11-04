@@ -1,0 +1,37 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+pyarrow = "*"
+orjson = "*"
+ijson = "*"
+python-dateutil = "*"
+tzdata = "*"
+markdown-it-py = "*"
+mdurl = "*"
+bleach = "*"
+typer = "*"
+rich = "*"
+tqdm = "*"
+tenacity = "*"
+pydantic = "*"
+python-dotenv = "*"
+python-slugify = "*"
+msgraph-sdk = "*"
+azure-identity = "*"
+msal = "*"
+openpyxl = "*"
+
+[dev-packages]
+black = "*"
+ruff = "*"
+mypy = "*"
+pytest = "*"
+pre-commit = "*"
+
+[requires]
+python_version = "3.11"
+python_full_version = "3.11.0"

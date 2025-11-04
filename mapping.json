@@ -1,0 +1,103 @@
+{
+  "teams": {
+    "Pilot - Jer-nee Company": [
+      {
+        "slack": "company-jer-nee",
+        "channel": "General",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      }
+    ],
+    "Pilot - Jer-nee Leadership": [
+      {
+        "slack": "leadership",
+        "channel": "General",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      }
+    ],
+    "Pilot - Jer-nee Implementation": [
+      {
+        "slack": "flightwave-internal",
+        "channel": "Flightwave Internal",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "g3-external",
+        "channel": "G3 External",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "kotm-internal",
+        "channel": "KOTM Internal",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "charter-jer-nee",
+        "channel": "Charter External",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "jer-nee--teal",
+        "channel": "Jer-nee Teal",
+        "type": "standard",
+        "archive": true,
+        "share_with": []
+      },
+      {
+        "slack": "teal-internal",
+        "channel": "Teal Internal",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "g3-enterprises-internal",
+        "channel": "G3",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "internal-veev",
+        "channel": "Veev Internal",
+        "type": "standard",
+        "archive": true,
+        "share_with": []
+      }
+    ],
+    "PILOT – Jer-nee - MKTG": [
+      {
+        "slack": "nextlevelconnected",
+        "channel": "Next Level Connected",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "small-satellite",
+        "channel": "Small Satellite",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      },
+      {
+        "slack": "arena-coordination",
+        "channel": "Arena Coordination",
+        "type": "standard",
+        "archive": false,
+        "share_with": []
+      }
+    ]
+  }
+}
