@@ -1,8 +1,3 @@
-Absolutely ✅ — here’s a **complete `README.md`** for your `slack-mig-teams` project.
-It documents the **setup**, **scripts**, **migration flow**, and **important Microsoft Graph constraints** — formatted for GitHub with clear sections and code blocks.
-
----
-
 ```markdown
 # 🛰️ Slack → Teams Migration Toolkit (`slack-mig-teams`)
 
@@ -55,12 +50,15 @@ slack-mig-teams/
 ├── scripts/                      # Helper and test scripts
 │   ├── token_test.py
 │   ├── create_team_migration.py
-│   ├── poll_team_op.py
+│   ├── poll_team_op.py            # (updated) normalizes URLs and prints full request URLs
 │   ├── create_channel_migration.py
 │   ├── list_channels.py
 │   ├── post_test_message.py
 │   ├── complete_migration.py
-│   └── get_team_state.py
+│   ├── get_team_state.py
+│   ├── debug_import_one.py        # debug: import a single message and print full response (status/headers/body)
+│   ├── inspect_channel.py        # diagnostic: query v1.0 and beta endpoints for team/channel
+│   └── decode_token.py           # acquire app token and print decoded JWT claims
 │
 ├── out/                          # Slack export outputs
 │   ├── slack_messages.jsonl
@@ -201,6 +199,9 @@ team complete: 204
 | `list_channels.py`            | Lists all channels in a given team                   |
 | `post_test_message.py`        | Posts a single historical message                    |
 | `complete_migration.py`       | Completes both channel + team migrations             |
+| `debug_import_one.py`         | Posts one HTML message to the beta import endpoint and prints status/headers/body for debugging |
+| `inspect_channel.py`         | Fetches v1.0 and beta team/channel resources and prints headers/body to diagnose state |
+| `decode_token.py`            | Acquires app-only token and decodes JWT claims (checks roles like Teamwork.Migrate.All) |
 
 ---
 
@@ -218,6 +219,55 @@ team complete: 204
 * 🧵 **Threads**: Supported through `replyToId` relationships in messages.
 
 * ⚡ **Rate Limits**: Microsoft Graph throttles imports at ~5 RPS per channel.
+
+## 🐞 Debugging & diagnostics (new)
+
+When an import fails, these scripts help pinpoint the cause quickly:
+
+- `scripts/debug_import_one.py` — posts a single HTML message to the beta import endpoint and prints:
+  - full POST URL (beta import endpoint), payload, HTTP status, all response headers and body.
+  - Example success shapes: 201 (created) or 202 (accepted with `Location` for operation polling).
+  - Example failure shape we observed: 405 with an `UnknownError` and empty message body; the response headers include `request-id` and `client-request-id` which are critical for Microsoft support.
+
+- `scripts/inspect_channel.py` — queries `/v1.0/groups/{team}`, `/v1.0/teams/{team}`, `/v1.0/teams/{team}/channels/{channel}`, and the same channel under `/beta`. Use this to confirm:
+  - `resourceProvisioningOptions` includes `"Team"` (teamified group)
+  - `membershipType` is `standard` (only standard channels accept imports)
+
+- `scripts/decode_token.py` — acquires the MSAL app-only token and prints decoded JWT claims so you can confirm the token contains the application `roles` (for app-only auth). For example, a working token contained:
+
+```
+"roles": [
+  "Teamwork.Migrate.All",
+  "Group.ReadWrite.All",
+  "User.Read.All",
+  "ChannelMessage.Read.All"
+]
+```
+
+If `Teamwork.Migrate.All` is present in `roles` the app has the necessary application permission (admin consent must be granted in Azure).
+
+Common troubleshooting checklist when an import returns 405 / UnknownError
+
+1. Run `inspect_channel.py` and confirm the channel returns `membershipType: "standard"` and the team is teamified.
+2. Run `decode_token.py` and confirm the token `roles` includes `Teamwork.Migrate.All`.
+3. Run `debug_import_one.py` and capture the full STATUS, HEADERS and BODY. If it returns 202, poll the `Location` operation URL with `poll_team_op.py`.
+4. If the debug import returns 405/UnknownError, copy the `request-id` and `client-request-id` from the response headers and include them when contacting Microsoft Support — they can correlate server-side traces.
+
+If you encounter the 405 error and the three diagnostics above are all green (channel standard, token has Teamwork.Migrate.All, fresh debug import still 405), it likely indicates a tenant-level restriction or a transient Graph service-side condition — escalate to Microsoft with the request ids and payload details.
+
+Example: create a fresh debug channel and test
+
+```powershell
+$teamId = "<TEAM_ID>"
+# create one-off channel for testing
+pipenv run python .\scripts\create_channel_migration.py $teamId "pilot-debug-1"
+# list channels, then set env
+$env:TEAM_ID = $teamId
+$env:CHANNEL_ID = "<NEW_CHANNEL_ID>"
+pipenv run python .\scripts\debug_import_one.py "Pilot debug message"
+```
+
+If the POST returns 201 or 202 the import worked (or is queued). If it returns 405, gather the `request-id` and `client-request-id` and share them with support.
 
 ---
 
